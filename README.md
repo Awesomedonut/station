@@ -11,7 +11,7 @@ pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Open [localhost:3000/worlds](http://localhost:3000/worlds). Without a data file, Station shows sample agents.
+Open [localhost:3000](http://localhost:3000). Without a data file, Station shows sample agents.
 
 ## Agent data
 
