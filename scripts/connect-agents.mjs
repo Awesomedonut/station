@@ -1,11 +1,8 @@
-import { spawnSync } from "node:child_process";
 import { mkdirSync, renameSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { tmpdir } from "node:os";
+import { scanSessions } from "./sessions.mjs";
 
-const reporterDir = resolve(
-  process.env.FORGE_REPORTER_DIR ?? "../forge-board/reporter",
-);
 const outputFile = resolve(
   process.env.STATION_DATA_FILE ?? `${tmpdir()}/station-world.json`,
 );
@@ -13,6 +10,7 @@ const interval = Math.max(
   5000,
   Number(process.env.STATION_REFRESH_MS ?? 20000),
 );
+const days = Math.max(1, Number(process.env.STATION_DAYS ?? 3));
 
 function ageLabel(minutes) {
   if (minutes < 1) return "under 1 min";
@@ -62,11 +60,12 @@ function makeWorld(report) {
               : "resting",
       }[agent.status],
       important: agent.status === "waiting" || agent.status === "running",
-      title: `${source} session · ${agent.project || "Unsorted"}`,
+      title:
+        agent.title || `${source} session · ${agent.project || "Unsorted"}`,
       say: `${source} session · ${agent.status}`,
       age: ageLabel(minutes),
       minutes,
-      helpers: agent.helpersActive ?? 0,
+      helpers: agent.helpers ?? 0,
       tasks: `${agent.tasksDone ?? 0}/${agent.tasksTotal ?? 0} tasks`,
       tasksDone: agent.tasksDone ?? 0,
       tasksTotal: agent.tasksTotal ?? 0,
@@ -136,33 +135,13 @@ function makeWorld(report) {
 }
 
 function refresh() {
-  const result = spawnSync(
-    "uv",
-    [
-      "run",
-      "--directory",
-      reporterDir,
-      "python",
-      "-m",
-      "agent_status.report",
-      "--once",
-      "--dry-run",
-    ],
-    { encoding: "utf8", maxBuffer: 32 * 1024 * 1024 },
-  );
-  if (result.error) throw result.error;
-  if (result.status !== 0) {
-    throw new Error(
-      result.stderr.trim() || `Reporter exited with ${result.status}`,
-    );
-  }
-  const world = makeWorld(JSON.parse(result.stdout));
+  const world = makeWorld(scanSessions({ days }));
   mkdirSync(dirname(outputFile), { recursive: true });
   const temporaryFile = `${outputFile}.${process.pid}.tmp`;
   writeFileSync(temporaryFile, JSON.stringify(world));
   renameSync(temporaryFile, outputFile);
   console.log(
-    `${new Date().toLocaleTimeString()} updated ${world.agents.agents.length} local sessions across ${world.agents.projects.length} projects`,
+    `${new Date().toLocaleTimeString()} wrote ${world.agents.agents.length} sessions across ${world.agents.projects.length} projects to ${outputFile}`,
   );
 }
 
