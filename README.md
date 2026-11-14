@@ -1,6 +1,6 @@
 # Station
 
-A visual dashboard for a multi-agent system, with Donut, Marble + Donut, and Candyland skins.
+A visual dashboard for a multi-agent system.
 
 ## Run
 
@@ -36,5 +36,3 @@ pnpm typecheck
 pnpm test
 pnpm build
 ```
-
-The worlds renderer comes from [forge-board](https://github.com/AlexLisong/forge-board/tree/8cb815d31e2a2e541d3c1b6508c40a230e34fc0d/src/modules/agentworld).
