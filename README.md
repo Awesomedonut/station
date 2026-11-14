@@ -2,6 +2,10 @@
 
 A visual dashboard for a multi-agent system.
 
+[![Station showing Claude Code and Codex sessions as a candy world](docs/demo.webp)](https://whyjs.com/station/)
+
+[Try the live demo](https://whyjs.com/station/) with sample data. Station is a work in progress.
+
 ## Run
 
 Use Node 22 and pnpm.
