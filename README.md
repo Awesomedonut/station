@@ -43,3 +43,7 @@ pnpm typecheck
 pnpm test
 pnpm build
 ```
+
+## License
+
+Station is licensed under the [GNU Affero General Public License v3.0](LICENSE). For commercial licensing, open an issue.
