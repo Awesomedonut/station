@@ -9,8 +9,9 @@ import { layoutWorld } from "../src/modules/agentworld/model";
 import { THEMES, themeOf } from "../src/modules/agentworld/themes";
 import sample from "../examples/world.json";
 
-test("only the two donut skins remain", () => {
-  assert.deepEqual(Object.keys(THEMES), ["donut", "donuttray"]);
+test("donut and candyland skins remain available", () => {
+  assert.deepEqual(Object.keys(THEMES), ["donut", "candyland", "donuttray"]);
+  assert.equal(THEMES.candyland.name, "Candyland");
   assert.equal(themeOf("crown").id, "donut");
 });
 test("sample data renders all six states and marks the waiting agent", async () => {

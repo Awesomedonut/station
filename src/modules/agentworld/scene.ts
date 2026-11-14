@@ -175,6 +175,77 @@ function treeTexture(k: number) {
     }
   });
 }
+function candyTree(seed: number) {
+  const tree = new THREE.Group();
+  const cane = new THREE.Group();
+  const path = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(0, 0, 0),
+    new THREE.Vector3(0.04, 1.45, 0),
+    new THREE.Vector3(0, 2.55, 0),
+    new THREE.Vector3(0.04, 3.05, 0),
+    new THREE.Vector3(0.35, 3.28, 0),
+    new THREE.Vector3(0.68, 3.12, 0),
+    new THREE.Vector3(0.7, 2.88, 0),
+  ]);
+  const white = new THREE.MeshStandardMaterial({
+    color: "#fff9ed",
+    roughness: 0.3,
+  });
+  const berry = new THREE.MeshStandardMaterial({
+    color: "#ed4777",
+    roughness: 0.36,
+  });
+  const stripes = new THREE.Mesh(
+    new THREE.TubeGeometry(path, 40, 0.2, 10, false),
+    white,
+  );
+  stripes.castShadow = true;
+  stripes.receiveShadow = true;
+  cane.add(stripes);
+  for (let i = 0; i < 9; i++) {
+    const band = new THREE.Mesh(
+      new THREE.TorusGeometry(0.205, 0.055, 8, 24),
+      berry,
+    );
+    band.position.set(0.02, 0.18 + i * 0.3, 0);
+    band.rotation.x = Math.PI / 2;
+    band.rotation.z = i % 2 ? 0.18 : -0.18;
+    band.castShadow = true;
+    cane.add(band);
+  }
+  tree.add(cane);
+  const gumdrops = ["#ff76a8", "#ffd653", "#65d9b2", "#9f83ef"];
+  for (let i = 0; i < 4; i++) {
+    const angle = (i / 4) * Math.PI * 2 + seed * 0.7;
+    const gumdrop = new THREE.Mesh(
+      new THREE.SphereGeometry(0.47, 20, 16),
+      new THREE.MeshStandardMaterial({
+        color: gumdrops[(i + seed) % gumdrops.length],
+        roughness: 0.3,
+      }),
+    );
+    gumdrop.scale.set(1, 0.92, 1);
+    gumdrop.position.set(
+      Math.cos(angle) * 0.55,
+      2.65 + (i % 2) * 0.2,
+      Math.sin(angle) * 0.55,
+    );
+    gumdrop.castShadow = true;
+    gumdrop.receiveShadow = true;
+    tree.add(gumdrop);
+  }
+  const gumdrop = new THREE.Mesh(
+    new THREE.SphereGeometry(0.49, 20, 16),
+    new THREE.MeshStandardMaterial({
+      color: gumdrops[seed % gumdrops.length],
+      roughness: 0.3,
+    }),
+  );
+  gumdrop.position.y = 3.02;
+  gumdrop.castShadow = true;
+  tree.add(gumdrop);
+  return tree;
+}
 function ringTexture(kind: "solid" | "dash" | "dot" | "red") {
   return tex(`ring:${kind}`, 256, 256, (c) => {
     c.strokeStyle = T.island.edge;
@@ -739,6 +810,19 @@ export class AgentWorldScene {
       );
       hs.rotation.set(0, -away - Math.PI / 2 + Math.PI, 0);
       g.add(hs);
+      if (T.id === "candyland") {
+        for (let i = 0; i < 4; i++) {
+          const angle = (i / 4) * Math.PI * 2 + k * 0.73;
+          const tree = candyTree(i + k);
+          tree.position.set(
+            Math.cos(angle) * (b.radius + 0.15),
+            0.04,
+            Math.sin(angle) * (b.radius + 0.15),
+          );
+          tree.scale.setScalar(0.72 + (i % 2) * 0.1);
+          g.add(tree);
+        }
+      }
       const crew = w.units.filter((u) => u.base === b.name),
         info = {
           asks: crew.filter((u) => u.atCommand).length,
